@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.4.xsd">
+    <changeSet author="longdh" id="create_tables">
+        <createTable tableName="question_bank">
+            <column name="question_code" type="VARCHAR(100)">
+                <constraints primaryKey="true" primaryKeyName="question_pkey"/>
+            </column>
+            <column name="question_type" type="tinyint"/>
+            <column name="question_content" type="text"/>
+            <column name="question_parent_code" type="VARCHAR(100)"/>
+            <column name="creation_date" type="datetime"/>
+            <column name="last_update_date" type="datetime"/>
+            <column name="creator_username" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updater_username" type="VARCHAR(255)"/>
+        </createTable>
+        <createTable tableName="answer_bank">
+            <column autoIncrement="true" name="answer_id" type="int">
+                <constraints primaryKey="true" primaryKeyName="answer_pkey"/>
+            </column>
+            <column name="answer_content" type="text"/>
+            <column name="creation_date" type="datetime"/>
+            <column name="last_update_date" type="datetime"/>
+            <column name="creator_username" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updater_username" type="VARCHAR(255)"/>
+        </createTable>
+        <createTable tableName="system_result">
+            <column autoIncrement="true" name="system_result_id" type="int">
+                <constraints primaryKey="true" primaryKeyName="system_result_pkey"/>
+            </column>
+            <column name="system_result_question_code" type="VARCHAR(100)">
+                <constraints nullable="false" foreignKeyName="system_result_question_code_fkey" references="question_bank(question_code)"/>
+            </column>
+            <column name="system_result_correct_id" type="text"/>
+            <column name="system_result_incorrect_id" type="text"/>
+            <column name="creation_date" type="datetime"/>
+            <column name="last_update_date" type="datetime"/>
+            <column name="creator_username" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updater_username" type="VARCHAR(255)"/>
+        </createTable>
+        <createTable tableName="user">
+            <column autoIncrement="true" name="user_id" type="int">
+                <constraints primaryKey="true" primaryKeyName="user_pkey"/>
+            </column>
+            <column name="username" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_digest" type="VARCHAR(200)">
+                <constraints nullable="false" />
+            </column>
+            <column name="activation_digest" type="VARCHAR(200)"/>
+            <column name="activated" type="boolean" defaultValue="false"/>
+            <column name="activated_at" type="datetime" />
+            <column name="remember_digest" type="VARCHAR(200)"/>
+            <column name="reset_digest" type="VARCHAR(200)"/>
+            <column name="reset_sent_at" type="datetime"/>
+            <column name="created_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="updated_at" type="datetime">
+                <constraints nullable="false"/>
+            </column>
+            <column name="display_name" type="NVARCHAR(100)"/>
+            <column name="email" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="phone" type="VARCHAR(20)"/>
+            <column name="address" type="NVARCHAR(255)"/>
+            <column name="avatar" type="VARCHAR(255)"/>
+            <column name="role" type="VARCHAR(50)"/>
+        </createTable>
+        <createIndex catalogName="e_learning"
+                     indexName="idx_username"
+                     schemaName="e_learning"
+                     tableName="user">
+            <column name="username" type="VARCHAR(100)"/>
+        </createIndex>
+        <createTable tableName="lession">
+            <column autoIncrement="true" name="lession_id" type="int">
+                <constraints primaryKey="true" primaryKeyName="lession_pkey"/>
+            </column>
+            <column name="lession_question_code" type="VARCHAR(100)">
+                <constraints nullable="false" foreignKeyName="lession_question_fkey" references="question_bank(question_code)"/>
+            </column>
+            <column name="lession_username" type="VARCHAR(50)">
+                <constraints nullable="false" foreignKeyName="lession_user_fkey" references="user(username)"/>
+            </column>
+            <column name="lession_code" type="VARCHAR(100)"/>
+            <column name="creation_date" type="datetime"/>
+            <column name="last_update_date" type="datetime"/>
+            <column name="user_answer" type="text"/>
+        </createTable>
+        <createIndex catalogName="e_learning"
+                     indexName="idx_lession_code"
+                     schemaName="e_learning"
+                     tableName="lession">
+            <column name="lession_code" type="VARCHAR(100)"/>
+        </createIndex>
+        <createTable tableName="user_result">
+            <column autoIncrement="true" name="user_result_id" type="int">
+                <constraints primaryKey="true" primaryKeyName="user_result_id_pkey"/>
+            </column>
+            <column name="lession_code" type="VARCHAR(100)">
+                <constraints nullable="false" foreignKeyName="lessioncode_fkey" references="lession(lession_code)"/>
+            </column>
+            <column name="user_result_username" type="VARCHAR(50)">
+                <constraints nullable="false" foreignKeyName="user_resultusername_fkey" references="user(username)"/>
+            </column>
+            <column name="creation_date" type="datetime"/>
+            <column name="last_update_date" type="datetime"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="update_data_type_json" author="longdh">
+        <modifyDataType catalogName="e_learning"
+            columnName="system_result_correct_id"
+            newDataType="nvarchar(100)"
+            schemaName="e_learning"
+            tableName="system_result"/>
+        <modifyDataType catalogName="e_learning"
+            columnName="system_result_incorrect_id"
+            newDataType="nvarchar(100)"
+            schemaName="e_learning"
+            tableName="system_result"/>
+    </changeSet>
+    <changeSet id="update_data_type_json_user_answer" author="longdh">
+        <modifyDataType catalogName="e_learning"
+            columnName="user_answer"
+            newDataType="nvarchar(100)"
+            schemaName="e_learning"
+            tableName="lession"/>
+    </changeSet>
+    <changeSet id="update_data_type_json_user_pk" author="longdh">
+        <dropColumn tableName="user" schemaName="e_learning" columnName="user_id"/>
+        <addPrimaryKey tableName="user" columnNames="username" schemaName="e_learning" constraintName="user_pkey"/>
+    </changeSet>
+    <changeSet id="add_table_lession_question" author="longdh">
+        <dropTable tableName="user_result" schemaName="e_learning"/>
+        <dropTable tableName="lession" schemaName="e_learning"/>
+        <createTable tableName="lession" schemaName="e_learning">
+            <column name="lession_code" type="VARCHAR(100)">
+                <constraints primaryKey="true" primaryKeyName="lession_pkey"/>
+            </column>
+            <column name="lession_username" type="VARCHAR(50)">
+                <constraints nullable="false" foreignKeyName="lession_user_fkey" references="user(username)"/>
+            </column>
+            <column name="creation_date" type="datetime"/>
+            <column name="last_update_date" type="datetime"/>
+        </createTable>
+        <createTable tableName="question_lession" schemaName="e_learning">
+            <column name="question_lession_lession_code" type="VARCHAR(100)">
+                <constraints foreignKeyName="question_lession_lession_code_fkey" references="lession(lession_code)"/>
+            </column>
+            <column name="question_lession_question_code" type="VARCHAR(100)">
+                <constraints foreignKeyName="question_lession_question_code_fkey" references="question_bank(question_code)"/>
+            </column>
+            <column name="user_answer" type="text"/>
+            <column name="point" type="FLOAT(6,2) UNSIGNED"/>
+        </createTable>
+        <addPrimaryKey columnNames="question_lession_lession_code, question_lession_question_code"
+            tableName="question_lession" constraintName="question_lession_pkey"/>
+    </changeSet>
+    <changeSet id="add_category_and_subcategory modify_question_bank" author="thaidq">
+        <createTable tableName="category">
+            <column name="category_code" type="VARCHAR(50)">
+                <constraints primaryKey="true" primaryKeyName="category_pkey"/>
+            </column>
+            <column name="category_intro" type="text"/>
+            <column name="creation_date" type="datetime"/>
+            <column name="last_update_date" type="datetime"/>
+        </createTable>
+        <createTable tableName="subcategory">
+            <column name="subcategory_code" type="VARCHAR(50)">
+                <constraints primaryKey="true" primaryKeyName="subcategory_pkey"/>
+            </column>
+            <column name="category_code" type="VARCHAR(50)">
+                <constraints nullable="false" foreignKeyName="category_code_fkey" references="category(category_code)"/>
+            </column>
+            <column name="subcategory_intro" type="text"/>
+            <column name="creation_date" type="datetime"/>
+            <column name="last_update_date" type="datetime"/>
+        </createTable>
+        <addColumn tableName="question_bank" catalogName="e_learning">
+            <column name="subcategory_code" type="VARCHAR(50)">
+                <constraints nullable="false" foreignKeyName="subcategory_code_fkey" references="subcategory(subcategory_code)"/>
+            </column>
+            <column name="point" type="FLOAT(6,2) UNSIGNED" />
+        </addColumn>
+    </changeSet>
+    <changeSet id="insert-sample-question-data" author="longdh">
+
+    </changeSet>
+    <changeSet author="longdh" id="alter-answer-bank-key">
+        <dropTable tableName="answer_bank" schemaName="e_learning"/>
+        <createTable tableName="answer_bank">
+            <column name="answer_code" type="varchar(100)">
+                <constraints primaryKey="true" primaryKeyName="answer_bank_pkey"/>
+            </column>
+            <column name="answer_content" type="text"/>
+            <column name="creation_date" type="datetime"/>
+            <column name="last_update_date" type="datetime"/>
+            <column name="creator_username" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="last_updater_username" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet id="create-unique" author="ChipZero">
+        <addUniqueConstraint
+            catalogName="e_learning"
+            columnNames="email"
+            constraintName="const_email"
+            schemaName="e_learning"
+            tableName="user"
+            tablespace="A String"/>
+        <addUniqueConstraint
+            catalogName="e_learning"
+            columnNames="phone"
+            constraintName="const_phone"
+            schemaName="e_learning"
+            tableName="user"
+            tablespace="A String"/>
+    </changeSet>
+    <changeSet id="remove-unique-email-phone" author="LongDH">
+        <dropUniqueConstraint tableName="user" constraintName="const_email" schemaName="e_learning" uniqueColumns="email, phone"/>
+    </changeSet>
+    <changeSet id="remove-unique-email-phone-p2" author="LongDH">
+        <dropUniqueConstraint tableName="user" constraintName="const_phone" schemaName="e_learning" uniqueColumns="phone"/>
+    </changeSet>
+    <changeSet author="LongDH" id="add_some_sample_user">
+        <sqlFile path="./user.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+    <changeSet id="add-more-fields-in-subcategory" author="longdh">
+        <addColumn catalogName="e_learning" tableName="subcategory">
+            <column name="display_name" type="varchar(100)"/>
+        </addColumn>
+    </changeSet>
+    <changeSet id="insert-category-subcategory" author="longdh">
+        <sqlFile path="./category.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="./subcategory.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+    <changeSet id="edit-answer-system-result" author="LongDH">
+        <dropTable tableName="system_result" schemaName="e_learning"/>
+        <createTable tableName="system_result">
+            <column name="system_result_question_code" type="VARCHAR(100)">
+                <constraints nullable="false" foreignKeyName="system_result_question_code_fkey" references="question_bank(question_code)"/>
+            </column>
+            <column name="system_result_answer_code" type="varchar(100)">
+                <constraints nullable="false" foreignKeyName="system_result_answer_code_fkey" references="answer_bank(answer_code)"/>
+            </column>
+            <column name="system_result_position" type="tinyint" >
+                <constraints nullable="false"/>
+            </column>
+            <column name="system_result_is_correct" type="tinyint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="creation_date" type="datetime"/>
+            <column name="last_update_date" type="datetime"/>
+            <column name="last_updater_username" type="VARCHAR(255)"/>
+        </createTable>
+        <addPrimaryKey tableName="system_result" columnNames="system_result_question_code, system_result_answer_code" constraintName="system_result_pkey"/>
+    </changeSet>
+    <changeSet id="change-type-activated" author="LongDh">
+        <modifyDataType tableName="user" columnName="activated" newDataType="tinyint"/>
+    </changeSet>
+
+    <changeSet id="change-type-position" author="hiennt">
+        <modifyDataType tableName="system_result" columnName="system_result_position" newDataType="int"/>
+    </changeSet>
+
+    <changeSet id="insert-question-answer-systemresult" author="hiennt">
+        <sqlFile path="./question.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="./answer.sql" relativeToChangelogFile="true"/>
+        <sqlFile path="./systemresult.sql" relativeToChangelogFile="true"/>
+    </changeSet>
+    <changeSet author="LongDH" id="change-question-lession">
+        <dropTable tableName="question_lession" schemaName="e_learning"/>
+        <createTable tableName="lession_report" schemaName="e_learning">
+            <column name="lession_report_lession_code" type="VARCHAR(100)">
+                <constraints foreignKeyName="lession_report_lession_code_fkey" references="lession(lession_code)"/>
+            </column>
+            <column name="lession_report_question_code" type="VARCHAR(100)"/>
+            <column name="question_content" type="text"/>
+            <column name="question_parent_code" type="VARCHAR(100)"/>
+            <column name="subcategory_code" type="VARCHAR(50)"/>
+            <column name="question_point" type="FLOAT(6,2) UNSIGNED"/>
+            <column name="user_point" type="FLOAT(6,2) UNSIGNED"/>
+            <column name="correct_answer" type="text"/>
+            <column name="user_answer" type="text"/>
+        </createTable>
+        <addPrimaryKey schemaName="e_learning" tableName="lession_report" columnNames="lession_report_lession_code, lession_report_question_code" constraintName="lession_report_pkey"/>
+    </changeSet>
+    <changeSet author="LongDH" id="add-is-finish-column-lession">
+        <addColumn catalogName="e_learning" tableName="lession">
+            <column name="is_finish" type="int" defaultValue="0"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="LongDH" id="add-more-columns-to-lession-report">
+        <addColumn tableName="lession_report" catalogName="e_learning">
+            <column name="incorrectAnswers" type="text"/>
+            <column name="correctAnswers" type="text"/>
+        </addColumn>
+    </changeSet>
+    <changeSet author="LongDH" id="modify-columns-to-lession-report">
+        <dropColumn tableName="lession_report" schemaName="e_learning" columnName="correct_answer"/>
+        <renameColumn columnDataType="text"
+            newColumnName="incorrect_answers"
+            oldColumnName="incorrectAnswers"
+            schemaName="e_learning"
+            tableName="lession_report"/>
+        <renameColumn columnDataType="text"
+            newColumnName="correct_answers"
+            oldColumnName="correctAnswers"
+            schemaName="e_learning"
+            tableName="lession_report"/>
+    </changeSet>
+    <changeSet id="add-question-type-lession-report" author="LongDh">
+        <addColumn tableName="lession_report">
+            <column afterColumn="question_content" name="quesion_type" type="tinyint" />
+        </addColumn>
+    </changeSet>
+</databaseChangeLog>
